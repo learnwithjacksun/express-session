@@ -56,6 +56,7 @@ export default function useAuth() {
       const response = await api.post("/auth/logout");
       if (response.data.success) {
         setUser(null);
+        getUser();
         toast.success(response.data.message);
       }
     } catch (error) {
@@ -71,9 +72,12 @@ export default function useAuth() {
       const response = await api.get("/auth/me");
       if (response.data.success) {
         setUser(response.data.data);
+      } else {
+        setUser(null);
       }
     } catch (error) {
       console.log(error);
+      setUser(null);
     } finally {
       setIsChecking(false);
     }

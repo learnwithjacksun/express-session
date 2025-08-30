@@ -38,12 +38,13 @@ export const login = async (req, res) => {
     const user = await UserModel.findOne({ email });
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = bcrypt.compareSync(password, user.password);
     if (!isMatch)
       return res.status(401).json({ message: "Invalid credentials" });
 
     // Create session
-    req.session.userId = user._id;
+    req.session.userId = user.id;
+    console.log(req.session.userId);
     res
       .status(200)
       .json({ message: "Logged in successfully", success: true, data: user });
@@ -62,7 +63,7 @@ export const login = async (req, res) => {
 export const getMe = async (req, res) => {
   if (!req.session.userId)
     return res.status(401).json({ message: "Not authenticated" });
-
+  console.log(req.session.userId);
   const user = await UserModel.findById(req.session.userId);
   res
     .status(200)

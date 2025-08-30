@@ -10,7 +10,6 @@ const useAuthStore = create<IAuthState>()(
   persist(
     (set) => ({
       user: null,
-      token: null,
       setUser: (user) => set({ user }),
     }),
     {
