@@ -61,7 +61,6 @@ export const login = async (req, res) => {
 export const getMe = async (req, res) => {
   if (!req.session.userId)
     return res.status(401).json({ message: "Not authenticated" });
-  console.log(req.session);
   const user = await UserModel.findById(req.session.userId);
   res
     .status(200)

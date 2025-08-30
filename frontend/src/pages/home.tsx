@@ -17,7 +17,7 @@ const dateFormatter = (date: string | undefined) => {
 export default function Home() {
   const { user, isChecking, logout, loading } = useAuth();
 
-  if (isChecking && !user) {
+  if (isChecking) {
     return (
       <Background>
         <div className="layout py-20 space-y-4">
