@@ -1,5 +1,6 @@
 import UserModel from "../models/user.js";
 import bcrypt from "bcryptjs";
+import process from "process";
 
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -44,7 +45,10 @@ export const login = async (req, res) => {
 
     // Create session
     req.session.userId = user.id;
-    console.log(req.session.userId);
+    console.log("Session created:", req.session.userId);
+    console.log("Session ID:", req.sessionID);
+    console.log("Environment:", process.env.NODE_ENV);
+    
     res
       .status(200)
       .json({ message: "Logged in successfully", success: true, data: user });
@@ -59,6 +63,10 @@ export const login = async (req, res) => {
 
 // Get current user
 export const getMe = async (req, res) => {
+  console.log("Session in getMe:", req.session);
+  console.log("Session ID in getMe:", req.sessionID);
+  console.log("User ID in session:", req.session.userId);
+  
   if (!req.session.userId)
     return res.status(401).json({ message: "Not authenticated" });
   const user = await UserModel.findById(req.session.userId);
@@ -71,7 +79,7 @@ export const getMe = async (req, res) => {
 export const logout = (req, res) => {
   req.session.destroy((err) => {
     if (err) return res.status(500).json({ message: "Logout failed" });
-    res.clearCookie("connect.sid");
+    res.clearCookie("my-session"); // Use the correct session name
     res.status(200).json({ message: "Logged out successfully", success: true });
   });
 };

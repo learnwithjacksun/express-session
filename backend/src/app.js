@@ -15,10 +15,22 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000", // frontend (dev)
-      "https://express-session-delta.vercel.app", // frontend (prod)
-    ],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      const allowedOrigins = [
+        "http://localhost:3000", // frontend (dev)
+        "https://express-session-delta.vercel.app", // frontend (prod)
+        // Add your actual production frontend URL here
+      ];
+      
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
@@ -42,16 +54,25 @@ app.use(
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // required for SameSite=None
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      domain:
-        process.env.NODE_ENV === "production"
-          ? ".vercel.app" // allow all subdomains of vercel.app
-          : "localhost",
+      // Remove domain configuration to let the browser handle it automatically
+      // domain: process.env.NODE_ENV === "production" ? ".vercel.app" : "localhost",
     },
   })
 );
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the API", success: true });
+});
+
+// Debug endpoint to check session
+app.get("/debug-session", (req, res) => {
+  res.json({
+    sessionID: req.sessionID,
+    session: req.session,
+    cookies: req.headers.cookie,
+    userAgent: req.headers["user-agent"],
+    origin: req.headers.origin,
+  });
 });
 
 app.use("/auth", authRouter);
